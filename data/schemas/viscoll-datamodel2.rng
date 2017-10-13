@@ -72,8 +72,8 @@
             <text/>
           </element>
         </optional>
-        
-       
+          
+          
         <element name="direction">
           <documentation xmlns="http://relaxng.org/ns/compatibility/annotations/1.0">direction is required and the default value is l-r</documentation>
           <attribute name="val">
@@ -83,15 +83,15 @@
               </choice>
           </attribute>
         </element>
-        
-        
+          
+          
         <documentation xmlns="http://relaxng.org/ns/compatibility/annotations/1.0">The manuscript begins with a list of quires</documentation>
         <element name="quires">
           <oneOrMore>
             <ref name="quire"/>
           </oneOrMore>
         </element>
-        
+          
         <oneOrMore>
           <documentation xmlns="http://relaxng.org/ns/compatibility/annotations/1.0">One leaf element to describe each leaf in the manuscript</documentation>
           <element name="leaf">
@@ -105,11 +105,6 @@
               <name ns="http://www.w3.org/XML/1998/namespace">id</name>
               <data type="NCName"/>
             </attribute>
-            <element name="position">
-              <attribute name="val">
-                <data type="integer"/>
-              </attribute>
-            </element>
             <optional>
               <element name="folioNumber">
                 <attribute name="val">
@@ -135,15 +130,9 @@
                 </attribute>
               </optional>
             </element>
-            <optional>
-              <element name="conjoin">
-                <ref name="certainty"/>
-                <ref name="target"/>
-                <text/>
-              </element>
-            </optional>
             <oneOrMore>
               <element name="q">
+                <optional><ref name="position"/></optional>
                 <optional>
                   <ref name="certainty"/>
                 </optional>
@@ -155,7 +144,20 @@
                     <data type="NCName"/>
                   </attribute>
                 </optional>
-                <data type="NMTOKEN"/>
+                <!-- DE: Add @position to q element to accommodate multiple quires per leaf -->
+                <!-- DE: Move quire number from q body text to @n attribute -->
+                <!-- DE: q element body now contains conjoin element -->
+                <optional>
+                  <ref name="n"/>
+                </optional>
+                <!-- DE: Move conjoin element from parent leaf to q element to work with multiple quires per leaf -->
+                <optional>
+                  <element name="conjoin">
+                    <ref name="certainty"/>
+                    <ref name="target"/>
+                    <text/>
+                  </element>
+                </optional>
               </element>
             </oneOrMore>
             <optional>
@@ -168,7 +170,8 @@
                 </attribute>
               </element>
             </optional>
-            <zeroOrMore>
+            <!-- DE: Make @atthachment-method single rather than zeroOrMore -->
+            <optional>
               <element name="attachment-method">
                 <ref name="certainty"/>
                 <optional>
@@ -181,7 +184,7 @@
                 </optional>
                 <data type="NCName"/>
               </element>
-            </zeroOrMore>
+            </optional>
           </element>
         </oneOrMore>
         <zeroOrMore>
@@ -225,6 +228,11 @@
       </optional>
     </element>
   </start>
+  <define name="n">
+    <attribute name="n">
+      <data type="NMTOKEN"/>
+    </attribute>
+  </define>
   <define name="certainty">
     <attribute name="certainty">
       <!-- values for @certainty: 1 = very certain, 2 = fairly certain, 3 = not certain -->
@@ -233,6 +241,11 @@
         <value>2</value>
         <value>3</value>
       </choice>
+    </attribute>
+  </define>
+  <define name="position">
+    <attribute name="position">
+      <data type="positiveInteger"/>
     </attribute>
   </define>
   <define name="target">
@@ -250,9 +263,7 @@
         <ref name="certainty"/>
       </optional>
       <optional>
-        <attribute name="n">
-          <data type="NMTOKEN"/>
-        </attribute>
+        <ref name="n"/>
       </optional>
       <!-- subquires must point to a parent quire -->
       <optional>
